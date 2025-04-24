@@ -9,6 +9,11 @@ variable "location" {
   type        = string
 }
 
+variable "env" {
+  description = "環境名"
+  type        = string
+}
+
 variable "subnet_id" {
   description = "Application Gateway用サブネットID"
   type        = string

@@ -1,33 +1,33 @@
-resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
+resource "azurerm_resource_group" "common" {
+  name     = format("%s-common-rg", var.env)
   location = var.location
 }
 
-module "network" {
-  source                  = "./modules/network"
-  resource_group_name     = azurerm_resource_group.rg.name
-  location                = var.location
-  vnet_name               = var.vnet_name
-  subnet_name             = var.subnet_name
-  vnet_address_space      = var.vnet_address_space
-  subnet_address_prefixes = var.subnet_address_prefixes
+module "infra" {
+  source              = "./modules/infra"
+  resource_group_name = azurerm_resource_group.common.name
+  env                 = var.env
+  location            = var.location
+  subnet_cidr_map     = var.subnet_cidr_map
+  vnet_address_space  = var.vnet_address_space
 }
 
 module "app" {
-  source              = "./modules/app"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = var.location
-  subnet_id           = module.network.subnet_id
-  acr_name            = var.acr_name
-  aca_env_name        = var.aca_env_name
-  container_apps      = var.container_apps
+  source         = "./modules/app"
+  location       = var.location
+  env            = var.env
+  subnet_id      = module.infra.aca_subnet_id
+  acr_name       = var.acr_name
+  aca_env_name   = var.aca_env_name
+  container_apps = var.container_apps
 }
 
 module "app_routing" {
   source              = "./modules/app_routing"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.common.name
   location            = var.location
-  subnet_id           = module.network.subnet_id
+  env                 = var.env
+  subnet_id           = module.infra.aca_subnet_id
   app_gateway_name    = var.app_gateway_name
   backend_services    = var.backend_services
   aca_apps            = module.app.aca_apps

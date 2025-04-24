@@ -1,7 +1,6 @@
 variable "env" {
   description = "環境名"
   type        = string
-  default     = "dev"
 }
 
 variable "subscription_id" {
@@ -22,16 +21,9 @@ variable "resource_group_name" {
   default     = "aca-appgw-rg"
 }
 
-variable "vnet_name" {
-  description = "仮想ネットワーク名"
-  type        = string
-  default     = "aca-vnet"
-}
-
-variable "subnet_name" {
-  description = "サブネット名"
-  type        = string
-  default     = "aca-subnet"
+variable "subnet_cidr_map" {
+  description = "各サブネットのIPレンジ一覧"
+  type        = map(string)
 }
 
 variable "acr_name" {
@@ -70,13 +62,6 @@ variable "backend_services" {
 variable "vnet_address_space" {
   description = "仮想ネットワークのアドレス空間"
   type        = list(string)
-  default     = ["10.0.0.0/16"]
-}
-
-variable "subnet_address_prefixes" {
-  description = "サブネットのアドレスプレフィックス"
-  type        = list(string)
-  default     = ["10.0.0.0/23"]
 }
 
 variable "container_apps" {
@@ -85,17 +70,6 @@ variable "container_apps" {
     image  = string
     cpu    = number
     memory = string
+    port   = number
   }))
-  default = {
-    backend = {
-      image  = "backend:latest"
-      cpu    = 0.5
-      memory = "1Gi"
-    },
-    frontend = {
-      image  = "frontend:latest"
-      cpu    = 0.5
-      memory = "1Gi"
-    }
-  }
 }

@@ -1,10 +1,10 @@
-variable "resource_group_name" {
-  description = "アプリ用のリソースグループ名"
+variable "location" {
+  description = "Azureリージョン"
   type        = string
 }
 
-variable "location" {
-  description = "Azureリージョン"
+variable "env" {
+  description = "環境名"
   type        = string
 }
 
@@ -29,5 +29,6 @@ variable "container_apps" {
     image  = string
     cpu    = number
     memory = string
+    port   = number
   }))
 }

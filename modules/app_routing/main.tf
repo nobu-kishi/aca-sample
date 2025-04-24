@@ -1,5 +1,7 @@
 # NOTE: バックエンド用コンテナもリクエストを受けられるようにしているが、紐付けできるコンテナ数が100までなので不要であれば削除する
 # https://learn.microsoft.com/ja-jp/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-application-gateway-limits
+
+# NOTE: backend系の定義に変更（追加・削除・順序変更）を加えると、planで差分検知されるが実際は再作成されない（詳細は、下記参照）
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_gateway
 resource "azurerm_application_gateway" "appgw" {
   name                = var.app_gateway_name
@@ -60,7 +62,7 @@ resource "azurerm_application_gateway" "appgw" {
     content {
       name                  = "${backend_http_settings.value.name}-http-settings"
       cookie_based_affinity = backend_http_settings.key == "frontend" ? "Enabled" : "Disabled"
-      port                  = 80
+      port                  = backend_http_settings.value.port
       protocol              = "Http"
       request_timeout       = 30
     }
@@ -77,4 +79,9 @@ resource "azurerm_application_gateway" "appgw" {
       backend_http_settings_name = "${request_routing_rule.value.name}-http-settings"
     }
   }
+
+  # NOTE: 原則、削除しない運用を想定
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
 }
