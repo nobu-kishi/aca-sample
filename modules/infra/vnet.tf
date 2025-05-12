@@ -22,6 +22,20 @@ resource "azurerm_subnet" "vm_subnet" {
   address_prefixes     = [var.subnet_cidr_map["vm"]]
 }
 
+resource "azurerm_subnet" "appgw_subnet" {
+  name                 = local.appgw_subnet_name
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.subnet_cidr_map["appgw"]]
+}
+
+resource "azurerm_subnet" "pe_aca_env_subnet" {
+  name                 = local.pe_subnet_name
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.subnet_cidr_map["pe_aca_env"]]
+}
+
 resource "azurerm_subnet" "aca_subnet" {
   name                 = local.aca_subnet_name
   resource_group_name  = var.resource_group_name
