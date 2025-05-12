@@ -1,22 +1,33 @@
 #!/bin/bash
 
 BASTION_NAME="$1"
-BASTION_RG="$2"
+RESOURCE_GROUP="$2"
 VM_NAME="$3"
-VM_PORT="$4"
 LOCAL_PORT="$5"
+PORTS=(22 8080 3000)
 
 # VMのリソースID取得
 VM_RESOURCE_ID=$(az vm show \
   --name "$VM_NAME" \
-  --resource-group "$VM_RG" \
+  --resource-group "$RESOURCE_GROUP" \
   --query id \
   --output tsv)
 
-# Bastion経由でSSH接続
-az network bastion tunnel \
-  --name "$BASTION_NAME" \
-  --resource-group "$BASTION_RG" \
-  --target-resource-id "$VM_RESOURCE_ID" \
-  --resource-port "$VM_PORT" \
-  --port "$LOCAL_PORT"
+for PORT in "${PORTS[@]}"; do
+
+  # sshポートが重複しないように、ローカルポートを2222に設定
+  if [[ "$PORT" -eq 22 ]]; then
+    LOCAL_PORT=2222
+  fi
+
+  az network bastion tunnel \
+    --name "$BASTION_NAME" \
+    --resource-group "$RESOURCE_GROUP" \
+    --target-resource-id "$VM_RESOURCE_ID" \
+    --resource-port "$PORT" \
+    --port "$LOCAL_PORT" &
+
+done
+
+# バックグラウンドのすべてのポートフォワーディングプロセスを待つ
+wait

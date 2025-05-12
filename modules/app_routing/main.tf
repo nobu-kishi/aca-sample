@@ -10,19 +10,20 @@ resource "azurerm_application_gateway" "appgw" {
 
   frontend_ip_configuration {
     name                          = "appgw-fe-ip"
-    subnet_id                     = var.subnet_id
-    private_ip_address_allocation = "Dynamic"
+    subnet_id                     = var.appgw_subnet_id
+    private_ip_address_allocation = "Static"
+    private_ip_address            = var.appgw_private_ip
   }
 
   sku {
-    name     = "WAF_v2"
-    tier     = "WAF_v2"
+    name     = "Standard_v2"
+    tier     = "Standard_v2"
     capacity = 2
   }
 
   gateway_ip_configuration {
     name      = "appgw-ip-config"
-    subnet_id = var.subnet_id
+    subnet_id = var.appgw_subnet_id
   }
 
   # NOTE: リスナーポートに相当する
@@ -30,8 +31,8 @@ resource "azurerm_application_gateway" "appgw" {
   dynamic "frontend_port" {
     for_each = var.backend_services
     content {
-      name = "port-${frontend_port.value.port}"
-      port = frontend_port.value.port
+      name = "port-${frontend_port.value.frontend_port}"
+      port = frontend_port.value.frontend_port
     }
   }
 
@@ -41,7 +42,7 @@ resource "azurerm_application_gateway" "appgw" {
     content {
       name                           = "${http_listener.value.name}-listener"
       frontend_ip_configuration_name = "appgw-fe-ip"
-      frontend_port_name             = "port-${http_listener.value.port}"
+      frontend_port_name             = "port-${http_listener.value.frontend_port}"
       protocol                       = "Http"
     }
   }
@@ -52,7 +53,7 @@ resource "azurerm_application_gateway" "appgw" {
     for_each = var.backend_services
     content {
       name  = "${backend_address_pool.value.name}-backend-pool"
-      fqdns = [var.aca_apps[backend_address_pool.value.name].latest_revision_fqdn]
+      fqdns = [var.aca_apps[backend_address_pool.value.name].ingress[0].fqdn]
     }
   }
 
@@ -60,9 +61,9 @@ resource "azurerm_application_gateway" "appgw" {
   dynamic "backend_http_settings" {
     for_each = var.backend_services
     content {
-      name                  = "${backend_http_settings.value.name}-http-settings"
-      cookie_based_affinity = backend_http_settings.key == "frontend" ? "Enabled" : "Disabled"
-      port                  = backend_http_settings.value.port
+      name                  = "${backend_http_settings.key}-http-settings"
+      cookie_based_affinity = backend_http_settings.value.name == "frontend" ? "Enabled" : "Disabled"
+      port                  = backend_http_settings.value.backend_port
       protocol              = "Http"
       request_timeout       = 30
     }
@@ -77,6 +78,7 @@ resource "azurerm_application_gateway" "appgw" {
       http_listener_name         = "${request_routing_rule.value.name}-listener"
       backend_address_pool_name  = "${request_routing_rule.value.name}-backend-pool"
       backend_http_settings_name = "${request_routing_rule.value.name}-http-settings"
+      priority                   = request_routing_rule.value.priority
     }
   }
 

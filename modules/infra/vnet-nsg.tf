@@ -34,7 +34,7 @@ resource "azurerm_network_security_group" "nsg_bastion" {
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
-    source_port_ranges         = "*"
+    source_port_range          = "*"
     destination_port_ranges    = ["8080", "5701"]
     source_address_prefix      = "VirtualNetwork"
     destination_address_prefix = "*"
@@ -120,7 +120,7 @@ resource "azurerm_network_security_group" "nsg_private" {
   }
 
   security_rule {
-    name                       = "AllowAcaInboundToVM"
+    name                       = "AllowAcaToVMInbound"
     priority                   = 1100
     direction                  = "Inbound"
     access                     = "Allow"
@@ -144,7 +144,7 @@ resource "azurerm_network_security_group" "nsg_private" {
   }
 
   security_rule {
-    name                       = "AllowVMOutboundToAca"
+    name                       = "AllowVMToAcaOutbound"
     priority                   = 1100
     direction                  = "Outbound"
     access                     = "Allow"
@@ -180,6 +180,48 @@ resource "azurerm_network_security_group" "nsg_aca" {
     access                     = "Allow"
     protocol                   = "*"
     source_port_range          = "*"
+    destination_port_ranges    = ["80", "443", "8080", "3000", "65503-65534"]
+    source_address_prefix      = "*"
+    destination_address_prefix = "VirtualNetwork"
+  }
+}
+
+resource "azurerm_network_security_group" "nsg_appgw" {
+  name                = "nsg-appgw"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  security_rule {
+    name                       = "AllowAppGwInbound"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["80", "443", "8080", "3000"]
+    source_address_prefix      = "VirtualNetwork"
+    destination_address_prefix = "VirtualNetwork"
+  }
+
+  security_rule {
+    name                       = "AllowAppGwProbeInbound"
+    priority                   = 105
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "65503-65534"
+    source_address_prefix      = "AzureLoadBalancer"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "AllowAppGwToAcaOutbound"
+    priority                   = 200
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
     destination_port_ranges    = ["80", "443", "8080", "3000"]
     source_address_prefix      = "*"
     destination_address_prefix = "VirtualNetwork"
@@ -199,4 +241,9 @@ resource "azurerm_subnet_network_security_group_association" "bastion_nsg_assoc"
 resource "azurerm_subnet_network_security_group_association" "private_nsg_assoc" {
   subnet_id                 = azurerm_subnet.vm_subnet.id
   network_security_group_id = azurerm_network_security_group.nsg_private.id
+}
+
+resource "azurerm_subnet_network_security_group_association" "appgw_nsg_assoc" {
+  subnet_id                 = azurerm_subnet.appgw_subnet.id
+  network_security_group_id = azurerm_network_security_group.nsg_appgw.id
 }

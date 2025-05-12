@@ -1,7 +1,18 @@
+output "vnet_id" {
+  description = "VNetのID"
+  value       = azurerm_virtual_network.vnet.id
+}
+
+output "appgw_subnet_id" {
+  description = "AppGWのサブネットID"
+  value       = azurerm_subnet.appgw_subnet.id
+}
+
 output "aca_subnet_id" {
-  description = "作成されたサブネットID"
+  description = "ACAのサブネットID"
   value       = azurerm_subnet.aca_subnet.id
 }
+
 output "vm_id" {
   value = azurerm_linux_virtual_machine.vm.id
 }

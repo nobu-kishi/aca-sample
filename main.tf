@@ -16,7 +16,9 @@ module "app" {
   source         = "./modules/app"
   location       = var.location
   env            = var.env
-  subnet_id      = module.infra.aca_subnet_id
+  vnet_id        = module.infra.vnet_id
+  aca_subnet_id      = module.infra.aca_subnet_id
+  pe_subnet_id           = module.vnet.azurerm_subnet.pe_aca_env_subnet.id
   acr_name       = var.acr_name
   aca_env_name   = var.aca_env_name
   container_apps = var.container_apps
@@ -27,10 +29,11 @@ module "app_routing" {
   resource_group_name = azurerm_resource_group.common.name
   location            = var.location
   env                 = var.env
-  subnet_id           = module.infra.aca_subnet_id
-  app_gateway_name    = var.app_gateway_name
-  backend_services    = var.backend_services
+  appgw_subnet_id     = module.infra.appgw_subnet_id
   aca_apps            = module.app.aca_apps
+  backend_services    = var.backend_services
+  app_gateway_name    = var.app_gateway_name
+  appgw_private_ip    = var.appgw_private_ip
 }
 # resource "azurerm_virtual_network" "vnet" {
 #   name                = var.vnet_name

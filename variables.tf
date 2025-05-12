@@ -50,12 +50,19 @@ variable "app_gateway_name" {
   default     = "aca-appgw"
 }
 
+variable "appgw_private_ip" {
+  description = "Application GatewayのプライベートIPアドレス"
+  type        = string
+}
+
 variable "backend_services" {
   description = "バックエンドサービスの一覧とポート設定"
   type = map(object({
-    # fqdn = string
-    port = number
-    name = string
+    name          = string
+    frontend_port = number
+    backend_port  = number
+    fqdn          = string
+    priority      = number
   }))
 }
 
