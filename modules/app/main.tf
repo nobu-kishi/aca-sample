@@ -3,12 +3,6 @@ resource "azurerm_resource_group" "app" {
   location = var.location
 }
 
-resource "azurerm_user_assigned_identity" "aca_identity" {
-  name                = "aca-identity"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.app.name
-}
-
 # NOTE: ECRは1リソース=1リポジトリだが、ACRは1リソース=複数のリポジトリを持つことができる
 # https://learn.microsoft.com/ja-jp/azure/container-registry/container-registry-overview
 resource "azurerm_container_registry" "acr" {
@@ -37,7 +31,7 @@ resource "azurerm_container_app_environment" "aca_env" {
 
   # NOTE: Azure管理の「ME」〜というリソースグループが自動作成され、planで差分検知されるので一旦無視する
   lifecycle {
-    ignore_changes = [ infrastructure_resource_group_id ]
+    ignore_changes = [infrastructure_resource_group_name]
   }
 }
 
@@ -76,8 +70,28 @@ resource "azurerm_container_app" "aca_apps" {
   # NOTE: スケールルールは、「azure_queue_scale_rule,custom_scale_rule,http_scale_rule,tcp_scale_rule」から選択
 }
 
+resource "azurerm_user_assigned_identity" "aca_identity" {
+  name                = "aca-identity"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.app.name
+}
+
 resource "azurerm_role_assignment" "acr_pull" {
   principal_id         = azurerm_user_assigned_identity.aca_identity.principal_id
   role_definition_name = "AcrPull"
   scope                = azurerm_container_registry.acr.id
+}
+
+# Private DNS Zone for ACA Environment
+resource "azurerm_private_dns_zone" "aca_private_dns" {
+  name                = "private.azurecontainerapps.io"
+  resource_group_name = azurerm_resource_group.app.name
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "aca_dns_vnet_link" {
+  name                  = "aca-dns-link"
+  resource_group_name   = azurerm_resource_group.app.name
+  private_dns_zone_name = azurerm_private_dns_zone.aca_private_dns.name
+  virtual_network_id    = var.vnet_id
+  registration_enabled  = false
 }

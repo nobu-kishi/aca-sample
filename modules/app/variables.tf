@@ -8,6 +8,11 @@ variable "env" {
   type        = string
 }
 
+variable "vnet_id" {
+  description = "VnetのID"
+  type        = string
+}
+
 variable "subnet_id" {
   description = "ACA環境用のサブネットID"
   type        = string
