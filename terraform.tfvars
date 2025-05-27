@@ -8,14 +8,15 @@ subnet_cidr_map = {
   postgresql = "10.0.20.0/24"
   appgw      = "10.0.30.0/24"
   aca        = "10.0.100.0/24"
-  pe_aca_env   = "10.0.101.0/28"
+  pe_aca_env = "10.0.101.0/28"
 }
 
-acr_name         = "acaregistry20250423"
-aca_env_name     = "aca-env"
-aca_profile_name = "aca-profile"
-app_gateway_name = "aca-appgw"
-appgw_private_ip = "10.0.30.10"
+acr_name             = "acaregistry20250423"
+aca_env_name         = "aca-env"
+aca_profile_name     = "aca-profile"
+app_gateway_name     = "aca-appgw"
+appgw_private_ip     = "10.0.30.10"
+storage_account_name = "acastorage20250423"
 
 container_apps = {
   frontend = {

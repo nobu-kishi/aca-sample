@@ -16,3 +16,13 @@ output "aca_subnet_id" {
 output "vm_id" {
   value = azurerm_linux_virtual_machine.vm.id
 }
+
+output "pe_aca_env_subnet_id" {
+  description = "プライベートエンドポイント用のサブネットID"
+  value       = azurerm_subnet.pe_aca_env_subnet.id
+}
+
+output "storage_share_name" {
+  description = "Azure Filesの名称"
+  value       = azurerm_storage_share.shared.name
+}

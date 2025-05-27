@@ -6,7 +6,6 @@ variable "env" {
 variable "subscription_id" {
   description = "サブスクリプションID"
   type        = string
-  default     = "b17158f1-9101-4ce3-9224-19e1561bbd4b"
 }
 
 variable "location" {
@@ -24,6 +23,11 @@ variable "resource_group_name" {
 variable "subnet_cidr_map" {
   description = "各サブネットのIPレンジ一覧"
   type        = map(string)
+}
+
+variable "storage_account_name" {
+  description = "ストレージアカウント名"
+  type        = string
 }
 
 variable "acr_name" {

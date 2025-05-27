@@ -30,10 +30,17 @@ variable "vm_size" {
 }
 
 variable "postgresql_admin_user" {
+  type    = string
   default = "postgres"
 }
 
 variable "postgresql_admin_password" {
+  type      = string
   sensitive = true
   default   = "passw0rd"
+}
+
+variable "storage_account_name" {
+  description = "ストレージアカウント名"
+  type        = string
 }

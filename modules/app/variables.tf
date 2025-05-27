@@ -13,6 +13,11 @@ variable "vnet_id" {
   type        = string
 }
 
+variable "storage_share_name" {
+  description = "Azure Filesの名称"
+  type        = string
+}
+
 variable "aca_subnet_id" {
   description = "ACA環境用のサブネットID"
   type        = string
