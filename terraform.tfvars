@@ -16,7 +16,20 @@ aca_env_name         = "aca-env"
 aca_profile_name     = "aca-profile"
 app_gateway_name     = "aca-appgw"
 appgw_private_ip     = "10.0.30.10"
-storage_account_name = "acastorage20250423"
+storage_account_name = "storage20250423"
+
+vm_config = {
+  linux = [
+    {
+      name = "linux-vm-01"
+    }
+  ],
+  windows = [
+    {
+      name = "windows-vm-01"
+    }
+  ]
+}
 
 container_apps = {
   frontend = {
@@ -25,12 +38,12 @@ container_apps = {
     memory = "1Gi"
     port   = 3000
   },
-  # backend = {
-  #   image  = "backend:latest"
-  #   cpu    = 0.5
-  #   memory = "1Gi"
-  #   port   = 8080
-  # }
+  backend = {
+    image  = "backend:latest"
+    cpu    = 0.5
+    memory = "1Gi"
+    port   = 8080
+  }
 }
 
 backend_services = {

@@ -13,9 +13,16 @@ output "aca_subnet_id" {
   value       = azurerm_subnet.aca_subnet.id
 }
 
-output "vm_id" {
-  value = azurerm_linux_virtual_machine.vm.id
+output "linux_vm_ids" {
+  description = "Linux仮想マシンのID一覧"
+  value       = module.vms.linux_vm_ids
 }
+
+output "windows_vm_ids" {
+  description = "Windows仮想マシンのID一覧"
+  value       = module.vms.windows_vm_ids
+}
+
 
 output "pe_aca_env_subnet_id" {
   description = "プライベートエンドポイント用のサブネットID"

@@ -11,6 +11,7 @@ module "infra" {
   subnet_cidr_map      = var.subnet_cidr_map
   vnet_address_space   = var.vnet_address_space
   storage_account_name = var.storage_account_name
+  vm_config            = var.vm_config
 }
 
 module "app" {

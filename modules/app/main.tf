@@ -65,6 +65,7 @@ resource "azapi_resource_action" "disable_env_public_ip" {
   depends_on = [azurerm_container_app_environment.aca_env]
 }
 
+# NOTE: スケールルールは、「azure_queue_scale_rule,custom_scale_rule,http_scale_rule,tcp_scale_rule」から選択
 resource "azurerm_container_app" "aca_apps" {
   for_each                     = var.container_apps
   name                         = "${each.key}-app"
@@ -104,6 +105,7 @@ resource "azurerm_container_app" "aca_apps" {
         path = "/mnt/shared"
       }
     }
+    
     min_replicas = 0 # 0を設定することで、リクストがない時は停止できる（常駐させる場合は、1を設定）
     max_replicas = 1
 
@@ -113,7 +115,17 @@ resource "azurerm_container_app" "aca_apps" {
       storage_type = "AzureFile"
     }
   }
-  # NOTE: スケールルールは、「azure_queue_scale_rule,custom_scale_rule,http_scale_rule,tcp_scale_rule」から選択
+
+  lifecycle {
+    ignore_changes = [
+      # NOTE: Consumptionプランを使用する場合、terraform実行時にプロファイル設定をnullで置換するため、無視する
+      workload_profile, 
+      # NOTE: ACAの環境を変更すると、azurerm_container_appのrevision_modeが変更されるため、無視する
+      revision_mode,
+      # NOTE: ACAの環境を変更すると、azurerm_container_appのingressが変更されるため、無視する
+      ingress,
+    ]
+  }
 }
 
 resource "azurerm_user_assigned_identity" "aca_identity" {

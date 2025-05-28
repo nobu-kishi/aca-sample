@@ -23,10 +23,21 @@ variable "subnet_cidr_map" {
   type        = map(string)
 }
 
-variable "vm_size" {
-  description = "仮想マシンのサイズ"
-  type        = string
-  default     = "Standard_B1s"
+variable "vm_config" {
+  description = "仮想マシンの設定"
+  type = object({
+    linux = list(object({
+      name           = string
+      vm_size        = optional(string)
+      admin_username = optional(string)
+    }))
+    windows = list(object({
+      name           = string
+      vm_size        = optional(string)
+      admin_username = optional(string)
+      admin_password = optional(string)
+    }))
+  })
 }
 
 variable "postgresql_admin_user" {

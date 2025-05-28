@@ -25,6 +25,23 @@ variable "subnet_cidr_map" {
   type        = map(string)
 }
 
+variable "vm_config" {
+  description = "仮想マシンの設定"
+  type = object({
+    linux = list(object({
+      name           = string
+      vm_size        = optional(string)
+      admin_username = optional(string)
+    }))
+    windows = list(object({
+      name           = string
+      vm_size        = optional(string)
+      admin_username = optional(string)
+      admin_password = optional(string)
+    }))
+  })
+}
+
 variable "storage_account_name" {
   description = "ストレージアカウント名"
   type        = string
